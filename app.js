@@ -33,7 +33,8 @@ mongoose.connect(process.env.DB_PATH);
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    googleId: String
+    googleId: String,
+    secret: String //technically this should be an array to allow the user to submit multiple secrets.
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -113,6 +114,14 @@ app.get("/auth/google/secrets",
     }
 );
 
+app.get("/submit", function(req, res) {
+    if (req.isAuthenticated()) {
+        res.render("submit");
+    } else {
+        res.redirect("/login");
+    }
+})
+
 app.get("/login", function(req, res) {
     res.render("login");
 });
@@ -122,11 +131,14 @@ app.get("/register", function(req, res) {
 });
 
 app.get("/secrets", function(req, res) {
-    if (req.isAuthenticated()) {
-        res.render("secrets");
-    } else {
-        res.redirect("/login");
-    }
+
+    User.find({ secret: { $ne: null } }, function(err, foundUsers) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render("secrets", { usersWithSecrets: foundUsers });
+        }
+    })
 });
 
 app.get("/logout", function(req, res) {
@@ -176,3 +188,22 @@ app.post("/register", function(req, res) {
     })
 
 });
+
+app.post("/submit", function(req, res) {
+    let submittedSecret = req.body.secret;
+
+    if (req.isAuthenticated()) {
+        User.findById(req.user.id, function(err, user) {
+            if (err) {
+                console.log(err);
+            } else if (user) {
+                user.secret = submittedSecret;
+                user.save(function() {
+                    res.redirect("/secrets");
+                });
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
+})

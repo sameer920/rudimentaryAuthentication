@@ -11,6 +11,10 @@ body {
     margin-top: 75px;
 }
 
+.submit-button {
+    margin-top: 10px;
+}
+
 .secret-text {
     text-align: center;
     font-size: 2rem;
