@@ -42,6 +42,7 @@ const User = mongoose.model("user", userSchema);
 
 passport.use(User.createStrategy());
 
+//from the passport doucmentation:
 passport.serializeUser(function(user, cb) {
     process.nextTick(function() {
         return cb(null, {
@@ -62,7 +63,7 @@ passport.deserializeUser(function(user, cb) {
 passport.use(new GoogleStrategy({
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "http://localhost:1111/auth/google/secrets"
+        callbackURL: process.env.CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, cb) {
 
@@ -72,16 +73,18 @@ passport.use(new GoogleStrategy({
                 return cb(err);
             } else {
                 if (user) {
-                    console.log("user found");
                     return cb(err, user);
+
                 } else {
                     let newUser = new User({
                         googleId: profile._json.sub,
                         username: profile._json.email
                     });
-                    console.log(profile)
                     newUser.save();
-                    return cb(err, user);
+                    return cb(err, newUser);
+                    /* We add newUser in the call back because findOne resulted in NULL, 
+                    as the user did not exist in our database. Passing NULL causes the system to think that the user
+                    is still unauthorized, which leads them to the login page */
                 }
             }
         })
