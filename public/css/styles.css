@@ -1,6 +1,5 @@
-
 body {
-  background-color: #E8ECEF;
+    background-color: #E8ECEF;
 }
 
 .centered {
@@ -8,9 +7,13 @@ body {
     text-align: center;
 }
 
+.secretsPage {
+    margin-top: 75px;
+}
+
 .secret-text {
-  text-align: center;
-  font-size: 2rem;
-  color: #fff;
-  background-color: #000;
+    text-align: center;
+    font-size: 2rem;
+    color: #fff;
+    background-color: #000;
 }
